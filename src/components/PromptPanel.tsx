@@ -37,7 +37,7 @@ export default function PromptPanel({ onGenerate, generating, progress }: Props)
           Describe your presentation
         </h1>
         <p className="text-zinc-400 text-sm">
-          Claude generates a complete slide deck from your prompt. Export as a standalone HTML file.
+          GPT-4o generates a complete slide deck from your prompt. Export as a standalone HTML file.
         </p>
       </div>
 

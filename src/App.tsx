@@ -27,7 +27,7 @@ export default function App() {
     if (!apiKey) { setShowKeySetup(true); return; }
     setGenerating(true);
     setError(null);
-    setProgress('Sending to Claude...');
+    setProgress('Sending to OpenAI...');
     try {
       const result = await generateDeck(prompt, apiKey, theme, setProgress);
       setDeck(result);
