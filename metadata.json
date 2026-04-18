@@ -1,0 +1,20 @@
+{
+  "inspired_by": "lewislulu/html-ppt-skill",
+  "project_name": "DeckForge",
+  "description": "AI-powered presentation builder — describe any topic, Claude generates a complete slide deck. Fullscreen present mode, keyboard navigation, export as single self-contained HTML file. Household seed prompts pre-loaded.",
+  "tech_stack": ["React", "TypeScript", "Vite", "Tailwind CSS v4", "Claude API (claude-sonnet-4-6)"],
+  "build_date": "2026-04-18",
+  "build_time_hours": 2,
+  "status": "complete",
+  "features": [
+    "Prompt → AI-generated slide deck (8-12 slides)",
+    "7 slide layouts: title, bullets, content, two-col, quote, code, closing",
+    "4 themes: dark, midnight, glass, light",
+    "6 household seed prompts (Agent Household, ClawDash Architecture, Podda Pitch, etc.)",
+    "Fullscreen present mode with keyboard navigation",
+    "Export as single self-contained HTML file",
+    "API key stored in localStorage — no backend required"
+  ],
+  "live_url": "https://mvp.trollefsen.com/2026-04-18-deckforge/",
+  "github_url": ""
+}

@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forge: #6366f1;
+  --color-forge-dim: #4338ca;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  background: #09090b;
+  color: #f4f4f5;
+  margin: 0;
+}
+
+/* Theme variables */
+.theme-dark {
+  --slide-bg: #18181b;
+  --slide-surface: #27272a;
+  --slide-accent: #6366f1;
+  --slide-accent2: #818cf8;
+  --slide-text: #f4f4f5;
+  --slide-muted: #a1a1aa;
+  --slide-border: #3f3f46;
+  --slide-code-bg: #0f0f11;
+}
+
+.theme-midnight {
+  --slide-bg: #020617;
+  --slide-surface: #0f172a;
+  --slide-accent: #22d3ee;
+  --slide-accent2: #67e8f9;
+  --slide-text: #e2e8f0;
+  --slide-muted: #94a3b8;
+  --slide-border: #1e293b;
+  --slide-code-bg: #010409;
+}
+
+.theme-glass {
+  --slide-bg: #0c0c14;
+  --slide-surface: rgba(255,255,255,0.06);
+  --slide-accent: #a78bfa;
+  --slide-accent2: #c4b5fd;
+  --slide-text: #f8fafc;
+  --slide-muted: #94a3b8;
+  --slide-border: rgba(255,255,255,0.12);
+  --slide-code-bg: rgba(0,0,0,0.4);
+}
+
+.theme-light {
+  --slide-bg: #ffffff;
+  --slide-surface: #f4f4f5;
+  --slide-accent: #4f46e5;
+  --slide-accent2: #6366f1;
+  --slide-text: #18181b;
+  --slide-muted: #71717a;
+  --slide-border: #e4e4e7;
+  --slide-code-bg: #f1f5f9;
+}
+
+/* Slide base */
+.slide-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--slide-bg);
+  color: var(--slide-text);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.slide-wrap .accent-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--slide-accent);
+}
+
+.slide-wrap .slide-num {
+  position: absolute;
+  bottom: 16px;
+  right: 20px;
+  font-size: 11px;
+  color: var(--slide-muted);
+  font-family: var(--font-mono);
+}
+
+/* Code highlight overrides */
+.slide-code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  background: var(--slide-code-bg);
+  border: 1px solid var(--slide-border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--slide-accent2);
+}
+
+/* Scrollbar hide */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
