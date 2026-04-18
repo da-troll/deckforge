@@ -43,52 +43,50 @@ export async function generateDeck(
   themeHint?: Theme,
   onProgress?: (msg: string) => void
 ): Promise<Deck> {
-  onProgress?.('Connecting to Claude...');
+  onProgress?.('Connecting to OpenAI...');
 
   const userPrompt = themeHint
     ? `${prompt}\n\nPreferred theme: ${themeHint}`
     : prompt;
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'anthropic-version': '2023-06-01',
-      'x-api-key': apiKey,
-      'anthropic-dangerous-direct-browser-access': 'true',
+      'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
+      model: 'gpt-4o',
       max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userPrompt }],
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userPrompt },
+      ],
+      response_format: { type: 'json_object' },
     }),
   });
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({ error: { message: response.statusText } }));
     const msg = (err as { error?: { message?: string } })?.error?.message || response.statusText;
-    throw new Error(`Claude API error: ${msg}`);
+    throw new Error(`OpenAI API error: ${msg}`);
   }
 
   onProgress?.('Parsing slides...');
 
   const data = await response.json() as {
-    content: Array<{ type: string; text: string }>;
+    choices: Array<{ message: { content: string } }>;
   };
 
-  const text = data.content.find(b => b.type === 'text')?.text ?? '';
-
-  // Strip markdown fences if Claude added them anyway
-  const cleaned = text.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
+  const text = data.choices[0]?.message?.content ?? '';
 
   try {
-    const deck = JSON.parse(cleaned) as Deck;
+    const deck = JSON.parse(text) as Deck;
     if (!deck.slides || !Array.isArray(deck.slides)) {
       throw new Error('Invalid deck structure: missing slides array');
     }
     return deck;
   } catch (e) {
-    throw new Error(`Failed to parse Claude response as JSON: ${(e as Error).message}\n\nRaw: ${cleaned.slice(0, 200)}`);
+    throw new Error(`Failed to parse response as JSON: ${(e as Error).message}\n\nRaw: ${text.slice(0, 200)}`);
   }
 }

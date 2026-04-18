@@ -31,7 +31,7 @@ export default function PromptPanel({ onGenerate, generating, progress }: Props)
       <div className="text-center pt-8">
         <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-full px-4 py-1.5 text-xs text-zinc-400 mb-4">
           <Zap className="w-3 h-3 text-forge" />
-          Powered by Claude Sonnet 4.6
+          Powered by GPT-4o
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">
           Describe your presentation
