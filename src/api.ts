@@ -1,4 +1,5 @@
 import type { Deck, Theme } from './types';
+import { getModel } from './models';
 
 const SYSTEM_PROMPT = `You are a professional presentation designer. Generate slide decks as structured JSON.
 
@@ -40,14 +41,34 @@ Rules:
 export async function generateDeck(
   prompt: string,
   apiKey: string,
+  modelId: string,
   themeHint?: Theme,
   onProgress?: (msg: string) => void
 ): Promise<Deck> {
-  onProgress?.('Connecting to OpenAI...');
+  onProgress?.(`Sending to ${modelId}...`);
+
+  const model = getModel(modelId);
+  const isReasoning = model.reasoning ?? false;
 
   const userPrompt = themeHint
-    ? `${prompt}\n\nPreferred theme: ${themeHint}`
-    : prompt;
+    ? `${prompt}\n\nPreferred theme: ${themeHint}\n\nIMPORTANT: Respond with ONLY a valid JSON object — no markdown, no explanation.`
+    : `${prompt}\n\nIMPORTANT: Respond with ONLY a valid JSON object — no markdown, no explanation.`;
+
+  const body: Record<string, unknown> = {
+    model: modelId,
+    max_tokens: 4096,
+    messages: isReasoning
+      ? [{ role: 'user', content: `${SYSTEM_PROMPT}\n\n---\n\n${userPrompt}` }]
+      : [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: userPrompt },
+        ],
+  };
+
+  // json_object response_format not supported by o-series reasoning models
+  if (!isReasoning) {
+    body.response_format = { type: 'json_object' };
+  }
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -55,21 +76,13 @@ export async function generateDeck(
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model: 'gpt-4o',
-      max_tokens: 4096,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: userPrompt },
-      ],
-      response_format: { type: 'json_object' },
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({ error: { message: response.statusText } }));
     const msg = (err as { error?: { message?: string } })?.error?.message || response.statusText;
-    throw new Error(`OpenAI API error: ${msg}`);
+    throw new Error(`OpenAI API error (${modelId}): ${msg}`);
   }
 
   onProgress?.('Parsing slides...');
@@ -80,13 +93,16 @@ export async function generateDeck(
 
   const text = data.choices[0]?.message?.content ?? '';
 
+  // Strip markdown fences if model wrapped the JSON anyway
+  const cleaned = text.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
+
   try {
-    const deck = JSON.parse(text) as Deck;
+    const deck = JSON.parse(cleaned) as Deck;
     if (!deck.slides || !Array.isArray(deck.slides)) {
       throw new Error('Invalid deck structure: missing slides array');
     }
     return deck;
   } catch (e) {
-    throw new Error(`Failed to parse response as JSON: ${(e as Error).message}\n\nRaw: ${text.slice(0, 200)}`);
+    throw new Error(`Failed to parse response as JSON: ${(e as Error).message}\n\nRaw: ${cleaned.slice(0, 300)}`);
   }
 }

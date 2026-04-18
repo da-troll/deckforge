@@ -23,13 +23,13 @@ export default function App() {
     if (!apiKey) setShowKeySetup(true);
   }, []);
 
-  const handleGenerate = async (prompt: string, theme: Theme) => {
+  const handleGenerate = async (prompt: string, theme: Theme, model: string) => {
     if (!apiKey) { setShowKeySetup(true); return; }
     setGenerating(true);
     setError(null);
-    setProgress('Sending to OpenAI...');
+    setProgress('');
     try {
-      const result = await generateDeck(prompt, apiKey, theme, setProgress);
+      const result = await generateDeck(prompt, apiKey, model, theme, setProgress);
       setDeck(result);
       setCurrentSlide(0);
     } catch (err) {
@@ -131,7 +131,7 @@ export default function App() {
         ) : (
           <div className="h-full overflow-y-auto">
             <PromptPanel
-              onGenerate={handleGenerate}
+              onGenerate={(prompt, theme, model) => handleGenerate(prompt, theme, model)}
               generating={generating}
               progress={progress}
             />
